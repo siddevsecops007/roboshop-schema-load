@@ -1,0 +1,19 @@
+name: Main Branch Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+run-name: ${{ github.sha }} | ${{ github.event.head_commit.message }}
+jobs:
+    build:
+      runs-on: self-hosted
+      needs: UNIT-TESTS
+      steps:
+        - uses: actions/checkout@v4
+        - run: |
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 216989125516.dkr.ecr.us-east-1.amazonaws.com
+            docker build -t 216989125516.dkr.ecr.us-east-1.amazonaws.com/roboshop-schema-load:${{ github.sha }} .
+            docker push 216989125516.dkr.ecr.us-east-1.amazonaws.com/roboshop-schema-load:${{ github.sha }}
+      #
+
